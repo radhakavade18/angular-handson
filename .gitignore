@@ -1,0 +1,19 @@
+# compiled output
+dist/
+tmp/
+
+# dependencies
+node_modules/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# misc
+.DS_Store
+Thumbs.db
+
+# Angular specific
+.angular/
