@@ -8,9 +8,10 @@ import { ButtonModule } from "primeng/button";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { InputTextModule } from "primeng/inputtext";
 import { PreventCopyPasteDirective } from './directives/prevent-copy-paste.directive';
+import { HomeComponent } from './components/home/home.component';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent, PreventCopyPasteDirective],
+  declarations: [AppComponent, LoginComponent, PreventCopyPasteDirective, HomeComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
