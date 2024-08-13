@@ -2,17 +2,17 @@ import { Component } from "@angular/core";
 import { UsersService } from "src/app/services/users.service";
 
 @Component({
-  selector: "app-home",
-  templateUrl: "./home.component.html",
-  styleUrls: ["./home.component.scss"],
+  selector: "app-board-user",
+  templateUrl: "./board-user.component.html",
+  styleUrls: ["./board-user.component.scss"],
 })
-export class HomeComponent {
+export class BoardUserComponent {
   content: string = "";
 
   constructor(private userService: UsersService) {}
 
   ngOnInit() {
-    this.userService.getPublicContent().subscribe(
+    this.userService.getUserBoard().subscribe(
       (data) => {
         this.content = data;
       },
