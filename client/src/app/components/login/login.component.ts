@@ -40,7 +40,7 @@ export class LoginComponent {
 
     this.authService.login(username as string, password as string).subscribe({
       next: (response) => {
-        this.authService.saveToken(response.token);
+        // this.authService.saveToken(response.token);
         this.router.navigate(["/home"]);
       },
     });

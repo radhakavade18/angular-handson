@@ -1,6 +1,6 @@
 <div class="col-md-12">
     <div class="card card-container">
-        <form *ngIf="!isLoggedIn" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
                 <label htmlFor="username">Username *</label>
                 <input class="form-control" type="text" pInputText formControlName="username" id="username" />
@@ -38,7 +38,7 @@
 
             <button pButton type="submit" label="Submit"></button>
 
-            <div class="alert alert-warning" *ngIf="isLoggedInFailed">
+            <div class="alert alert-warning" *ngIf="!isLoggedIn">
                 Login failed! <br /> {{errorMessage}}
             </div>
 

@@ -11,6 +11,7 @@ const httpOptions = {
 })
 export class AuthService {
   private apiUrl = "http://localhost:3001/api/auth";
+  private tokenKey = "authToken";
 
   constructor(private http: HttpClient) {}
 
@@ -25,6 +26,11 @@ export class AuthService {
       email,
       password,
     });
+  }
+
+  // Save JWT token to sessionStorage
+  saveToken(token: string): void {
+    sessionStorage.setItem(this.tokenKey, token);
   }
 
   getToken() {
