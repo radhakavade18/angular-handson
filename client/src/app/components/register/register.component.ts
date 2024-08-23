@@ -16,8 +16,10 @@ export class RegisterComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit(): void {
+    console.log("form", this.form);
+    this.router.navigate(["/login"]);
     this.authService
-      .register(this.form.userName, this.form.email, this.form.password)
+      .register(this.form.userName, this.form.password, this.form.email)
       .subscribe(
         (data) => {
           console.log(data);

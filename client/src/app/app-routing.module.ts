@@ -18,6 +18,11 @@ const routes: Routes = [
   { path: "mod", component: BoardModeratorComponent },
   { path: "admin", component: BoardAdminComponent, canActivate: [AuthGuard] },
   { path: "profile", component: ProfileComponent },
+  {
+    path: "posts",
+    loadChildren: () =>
+      import("./posts/posts.module").then((m) => m.PostsModule),
+  },
 ];
 
 @NgModule({

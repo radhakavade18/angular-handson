@@ -32,6 +32,7 @@ export class LoginComponent {
 
   onSubmit() {
     this.isSubmitted = true;
+    this.router.navigate(["/home"]);
 
     if (this.loginForm.invalid) {
       return;

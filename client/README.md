@@ -26,6 +26,10 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
 
+# create feature module with lazy loading
+
+ng generate module your-module-name --route your-route-name --module app.module
+
 ## Authentication and Authorisation process
 
 1. Create components and decleare in app.module.ts file
