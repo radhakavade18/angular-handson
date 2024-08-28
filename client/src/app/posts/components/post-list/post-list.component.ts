@@ -10,16 +10,19 @@ import { Subscription } from "rxjs";
 })
 export class PostListComponent {
   posts: Post[] = [];
+  isLoading: boolean = false;
   // to save subscrition
   private postsSub: Subscription | undefined;
 
   constructor(private postService: PostsService) {}
 
   ngOnInit() {
+    this.isLoading = true;
     this.postService.getPosts();
     this.postsSub = this.postService
       .getPostUpdateListener()
       .subscribe((posts: Post[]) => {
+        this.isLoading = false;
         this.posts = posts;
       });
   }
