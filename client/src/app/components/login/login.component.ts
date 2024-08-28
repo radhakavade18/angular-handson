@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
+import { AuthService } from "src/app/services/auth.service";
 
 @Component({
   selector: "app-login",
@@ -7,6 +9,13 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
   styleUrls: ["./login.component.scss"],
 })
 export class LoginComponent {
+  isLoggedIn: boolean = false;
+  isSubmitted: boolean = false;
+  errorMessage: string = "";
+  roles: string[] = [];
+
+  constructor(private authService: AuthService, private router: Router) {}
+
   loginForm = new FormGroup({
     username: new FormControl("", Validators.required),
     email: new FormControl("", [
@@ -19,8 +28,27 @@ export class LoginComponent {
     ]),
   });
 
+  ngOnInit() {}
+
   onSubmit() {
-    console.log(this.loginForm.value);
+    this.isSubmitted = true;
+    this.router.navigate(["/home"]);
+
+    if (this.loginForm.invalid) {
+      return;
+    }
+    const { username, password } = this.loginForm.value;
+
+    this.authService.login(username as string, password as string).subscribe({
+      next: (response) => {
+        // this.authService.saveToken(response.token);
+        this.router.navigate(["/home"]);
+      },
+    });
+  }
+
+  reloadPage(): void {
+    window.location.reload();
   }
 
   get username() {

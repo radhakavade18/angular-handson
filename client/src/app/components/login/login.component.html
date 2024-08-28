@@ -1,37 +1,50 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div>
-        <label htmlFor="username">Username *</label>
-        <input type="text" pInputText formControlName="username" id="username" />
-        <div *ngIf="username?.hasError('required')">
-            Username is required.
-        </div>
-    </div>
+<div class="col-md-12">
+    <div class="card card-container">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label htmlFor="username">Username *</label>
+                <input class="form-control" type="text" pInputText formControlName="username" id="username" />
+                <div class="alert alert-danger" *ngIf="username?.hasError('required')">
+                    Username is required.
+                </div>
+            </div>
 
-    <div>
-        <label htmlFor="email">Email *</label>
-        <input type="email" pInputText formControlName="email" id="email" />
-        <div *ngIf="email?.invalid && (email?.dirty || email?.touched)">
-            <div *ngIf="email?.hasError('required')">
-                Email is required.
+            <div>
+                <label htmlFor="email">Email *</label>
+                <input type="email" pInputText formControlName="email" id="email" />
+                <div *ngIf="email?.invalid && (email?.dirty || email?.touched)">
+                    <div *ngIf="email?.hasError('required')">
+                        Email is required.
+                    </div>
+                    <div *ngIf="email?.hasError('pattern')">
+                        Enter valid email address.
+                    </div>
+                </div>
             </div>
-            <div *ngIf="email?.hasError('pattern')">
-                Enter valid email address.
-            </div>
-        </div>
-    </div>
 
-    <div>
-        <label htmlFor="password">Password *</label>
-        <input type="password" pInputText formControlName="password" id="password" appPreventCopyPaste />
-        <div *ngIf="password?.invalid && (password?.dirty || password?.touched)">
-            <div *ngIf="password?.hasError('required')">
-                Password is required.
+            <div class="form-group">
+                <label htmlFor="password">Password *</label>
+                <input class="form-control" type="password" pInputText formControlName="password" id="password"
+                    appPreventCopyPaste />
+                <div class="alert alert-danger" *ngIf="password?.invalid && (password?.dirty || password?.touched)">
+                    <div *ngIf="password?.hasError('required')">
+                        Password is required.
+                    </div>
+                    <div *ngIf="password?.hasError('minlength')">
+                        Password should be atleast min 6 charactoer long.
+                    </div>
+                </div>
             </div>
-            <div *ngIf="password?.hasError('minlength')">
-                Password should be atleast min 6 charactoer long.
-            </div>
-        </div>
-    </div>
 
-    <button pButton type="submit" label="Submit"></button>
-</form>
+            <button pButton type="submit" label="Submit"></button>
+
+            <div class="alert alert-warning" *ngIf="!isLoggedIn">
+                Login failed! <br /> {{errorMessage}}
+            </div>
+
+            <div class="alert alert-success" *ngIf="isLoggedIn">
+                Your login is successful!
+            </div>
+        </form>
+    </div>
+</div>

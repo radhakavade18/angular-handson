@@ -1,0 +1,24 @@
+<div class="container">
+    <div class="row">
+        <div class="col-12 mt-4">
+            <div><a mat-raised-button color="accent" routerLink="create">Add new post</a></div>
+        </div>
+    </div>
+    <div class="mt-4">
+        <mat-spinner *ngIf="isLoading"></mat-spinner>
+        <mat-accordion *ngIf="posts.length > 0 && !isLoading" multi>
+            <mat-expansion-panel *ngFor="let post of posts">
+                <mat-expansion-panel-header>
+                    {{post.title}}
+                </mat-expansion-panel-header>
+                <p>{{post.content}}</p>
+                <mat-action-row>
+                    <a mat-button color="primary" [routerLink]="['edit', post.id]">Edit</a>
+                    <button mat-button color="warn" (click)="onDeletePost(post.id)">Delete</button>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </mat-accordion>
+
+        <p class="mat-body-1" *ngIf="posts.length === 0 && !isLoading">No post added yet!</p>
+    </div>
+</div>
