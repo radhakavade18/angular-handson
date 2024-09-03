@@ -6,12 +6,13 @@ import { PostsComponent } from "./posts.component";
 import { MatInputModule } from "@angular/material/input";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { PostCreateComponent } from "./components/post-create/post-create.component";
 import { PostListComponent } from "./components/post-list/post-list.component";
 import { MatExpansionModule } from "@angular/material/expansion";
 import { HttpClientModule } from "@angular/common/http";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatPaginatorModule } from "@angular/material/paginator";
 
 @NgModule({
   declarations: [PostsComponent, PostCreateComponent, PostListComponent],
@@ -25,6 +26,8 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     MatExpansionModule,
     HttpClientModule,
     MatProgressSpinnerModule,
+    ReactiveFormsModule,
+    MatPaginatorModule,
   ],
 })
 export class PostsModule {}

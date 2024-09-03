@@ -5,11 +5,8 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const postsRoutes = require('./routes/posts');
 const cors = require("cors");
-const Posts = require('./model/Posts');
-const mongoose = require("mongoose");
-
-
 const app = express();
+const path = require("path");
 
 app.use(cors({
     origin: 'http://localhost:4200',
@@ -28,6 +25,7 @@ app.use(express.json());
 // parse request of content type - application/x-www-form-urlencoded
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/images", express.static(path.join('server/images')))
 
 app.get('/', (req, res) => {
     res.send("HELLO FROM HOMEPAGE")
