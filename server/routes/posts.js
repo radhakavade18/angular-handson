@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Posts = require('../model/Posts')
 const multer = require("multer");
+const authenticate = require("../middleware/auth");         // for protecteting routes 
 
 const MIME_TYPE_MAP = {
     "image/png": "png",
@@ -26,10 +27,15 @@ const storage = multer.diskStorage({
     }
 })
 
-router.post('', multer({ storage: storage }).single("image"), (req, res, next) => {
+router.post('', authenticate, multer({ storage: storage }).single("image"), (req, res, next) => {
     const url = req.protocol + '://' + req.get("host");
-    const post = new Posts({ title: req.body.title, content: req.body.content, imagePath: url + "/images/" + req.file.filename });
-    console.log("new post", post)
+    const post = new Posts({
+        title: req.body.title,
+        content: req.body.content,
+        imagePath: url + "/images/" + req.file.filename,
+        creator: req.userData.userId
+    });
+
     post.save().then((createdPost) => {
         res.status(201).json({
             message: "Post added successfully!",
@@ -49,7 +55,6 @@ router.post('', multer({ storage: storage }).single("image"), (req, res, next) =
 
 router.get('', (req, res) => {
     // extract anything from req.query is string as a type
-    console.log(req.query)
     const pageSize = +req.query.pageSize;
     const currentPage = +req.query.page;
     const postQuery = Posts.find();
@@ -59,8 +64,11 @@ router.get('', (req, res) => {
             .skip(pageSize * (currentPage - 1))
             .limit(pageSize)
     }
-    postQuery.then(documents => {
-        fetchedPosts = documents;
+    postQuery.lean().then(posts => {
+        fetchedPosts = posts.map(post => {
+            post.creator = post.creator.toString(); // Convert ObjectId to string
+            return post;
+        });
         return Posts.countDocuments();
     }).then(count => {
         res.status(200).json({
@@ -81,15 +89,32 @@ router.get("/:id", (req, res, next) => {
     })
 })
 
-router.delete('/:id', (req, res) => {
-    const postId = req.params.id;
-    Posts.deleteOne({ _id: postId }).then((result) => {
-        console.log(result);
-        res.status(200).json({ message: "Post deleted" })
-    })
-})
+// router.delete('/:id', authenticate, (req, res) => {
+//     const postId = req.params.id;
+//     Posts.deleteOne({ _id: postId, creator: req.userData.userId }).then((result) => {
+//         if (result.deletedCount > 0) {
+//             res.status(200).json({ message: "Post deleted successfully!" })
+//         } else {
+//             res.status(401).json({ message: "Not Authorised!" })
+//         }
+//     })
+// })
 
-router.put('/:id', multer({ storage: storage }).single("image"), async (req, res, next) => {
+router.delete('/:id', authenticate, (req, res) => {
+    const postId = req.params.id;
+    Posts.deleteOne({ _id: postId, creator: req.userData.userId }).then((result) => {
+        if (result.deletedCount > 0) {
+            return res.status(200).json({ message: "Post deleted successfully!" });
+        } else {
+            return res.status(401).json({ message: "Not Authorized!" });
+        }
+    }).catch(error => {
+        return res.status(500).json({ message: "Something went wrong", error });
+    });
+});
+
+
+router.put('/:id', authenticate, multer({ storage: storage }).single("image"), async (req, res, next) => {
     let imagePath = req.body.imagePath;
     if (req.file) {
         const url = req.protocol + '://' + req.get("host");
@@ -99,12 +124,16 @@ router.put('/:id', multer({ storage: storage }).single("image"), async (req, res
         _id: req.body.id,
         title: req.body.title,
         content: req.body.content,
-        imagePath: imagePath
+        imagePath: imagePath,
+        creator: req.userData.userId
     })
 
-    Posts.updateOne({ _id: req.body.id }, post).then((result) => {
-        console.log(result);
-        res.status(200).json({ message: "Post updated successfully!" })
+    // only update if post id and creator id is same
+    Posts.updateOne({ _id: req.body.id, creator: req.userData.userId }, post).then((result) => {
+        if (result.modifiedCount > 0) {
+            res.status(200).json({ message: "Post updated successfully!" })
+        }
+        res.status(401).json({ message: "Not Authorised!" })
     })
 })
 

@@ -1,5 +1,4 @@
 import { Component } from "@angular/core";
-import { Route, Router } from "@angular/router";
 import { AuthService } from "src/app/services/auth.service";
 
 @Component({
@@ -10,26 +9,23 @@ import { AuthService } from "src/app/services/auth.service";
 export class RegisterComponent {
   form: any = {};
   isSuccessful: boolean = false;
-  isSubmitted: boolean = false;
-  errorMessage: string = "";
+  isRegistered: any;
+  isLoading: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
 
   onSubmit(): void {
-    console.log("form", this.form);
-    this.router.navigate(["/login"]);
-    this.authService
-      .register(this.form.userName, this.form.password, this.form.email)
-      .subscribe(
-        (data) => {
-          console.log(data);
-          this.isSuccessful = true;
-          this.router.navigate(["/login"]);
-        },
-        (err) => {
-          this.errorMessage = err.error.message;
-          this.isSuccessful = false;
-        }
-      );
+    if (this.form.invalid) {
+      return;
+    }
+    this.isLoading = true;
+    this.isRegistered = this.authService.registerUser(
+      this.form.username,
+      this.form.email,
+      this.form.password
+    );
+    if (this.isRegistered) {
+      this.isSuccessful = true;
+    }
   }
 }

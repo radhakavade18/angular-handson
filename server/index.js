@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require("body-parser");
 const connectDB = require('./db');
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
 const postsRoutes = require('./routes/posts');
 const cors = require("cors");
 const app = express();
@@ -11,7 +10,7 @@ const path = require("path");
 app.use(cors({
     origin: 'http://localhost:4200',
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'x-access-token']
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'x-access-token', 'Authorization']
 }));
 
 const PORT = 3001;
@@ -31,14 +30,11 @@ app.get('/', (req, res) => {
     res.send("HELLO FROM HOMEPAGE")
 })
 
-// Define authentication routes
-// app.use('/auth', authRoutes);
-
-// Define user routes
-// app.use('/user', userRoutes);
-
 // Define posts routes
 app.use('/posts', postsRoutes)
+
+// Define user routes
+app.use('/user', authRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is listening on port: http://localhost:${PORT}`);

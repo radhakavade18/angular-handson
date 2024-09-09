@@ -3,6 +3,7 @@ import { Post } from "../../models/post.model";
 import { PostsService } from "../../services/posts.service";
 import { Subscription } from "rxjs";
 import { PageEvent } from "@angular/material/paginator";
+import { AuthService } from "src/app/services/auth.service";
 
 @Component({
   selector: "app-post-list",
@@ -13,16 +14,23 @@ export class PostListComponent {
   posts: Post[] = [];
   isLoading: boolean = false;
   totalPosts: number = 0;
-  postPerPage: number = 2;
+  postPerPage: number = 10;
   currentPage: number = 1;
+  userId: string = "";
   pageSizeOptions = [1, 2, 5, 10];
   // to save subscrition
   private postsSub: Subscription | undefined;
+  private authStatusSub: Subscription | undefined;
+  userIsAuthenticated: boolean = false;
 
-  constructor(private postService: PostsService) {}
+  constructor(
+    private postService: PostsService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.isLoading = true;
+    this.userId = this.authService.getUserId();
     this.postService.getPosts(this.postPerPage, this.currentPage);
     this.postsSub = this.postService
       .getPostUpdateListener()
@@ -31,6 +39,15 @@ export class PostListComponent {
         this.totalPosts = postData.postCount;
         this.posts = postData.posts;
       });
+
+    // checks if user is logged in or not
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authStatusSub = this.authService
+      .getAuthStatusListener()
+      .subscribe((result) => {
+        this.userIsAuthenticated = result;
+        this.userId = this.authService.getUserId();
+      });
   }
 
   onChangedPage(pageData: PageEvent) {
@@ -38,7 +55,6 @@ export class PostListComponent {
     this.currentPage = pageData.pageIndex + 1;
     this.postPerPage = pageData.pageSize;
     this.postService.getPosts(this.postPerPage, this.currentPage);
-    console.log(pageData);
   }
 
   onDeletePost(postId: string) {
@@ -50,5 +66,6 @@ export class PostListComponent {
 
   ngOnDestroy() {
     this.postsSub?.unsubscribe();
+    this.authStatusSub?.unsubscribe();
   }
 }

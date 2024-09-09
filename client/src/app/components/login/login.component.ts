@@ -11,13 +11,13 @@ import { AuthService } from "src/app/services/auth.service";
 export class LoginComponent {
   isLoggedIn: boolean = false;
   isSubmitted: boolean = false;
+  isLoading: boolean = false;
   errorMessage: string = "";
   roles: string[] = [];
 
   constructor(private authService: AuthService, private router: Router) {}
 
   loginForm = new FormGroup({
-    username: new FormControl("", Validators.required),
     email: new FormControl("", [
       Validators.required,
       Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$"),
@@ -32,19 +32,13 @@ export class LoginComponent {
 
   onSubmit() {
     this.isSubmitted = true;
-    this.router.navigate(["/home"]);
-
+    const { email, password } = this.loginForm.value;
     if (this.loginForm.invalid) {
       return;
     }
-    const { username, password } = this.loginForm.value;
+    this.isLoading = true;
 
-    this.authService.login(username as string, password as string).subscribe({
-      next: (response) => {
-        // this.authService.saveToken(response.token);
-        this.router.navigate(["/home"]);
-      },
-    });
+    this.authService.loginUser(email as string, password as string);
   }
 
   reloadPage(): void {
