@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { AuthService } from "src/app/services/auth.service";
 
 @Component({
@@ -10,12 +11,23 @@ import { AuthService } from "src/app/services/auth.service";
 })
 export class LoginComponent {
   isLoggedIn: boolean = false;
-  isSubmitted: boolean = false;
   isLoading: boolean = false;
   errorMessage: string = "";
   roles: string[] = [];
+  authStatusSubject: Subscription | undefined;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.authStatusSubject = this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => {
+        this.isLoading = false;
+        if (!authStatus) {
+          this.isLoggedIn = false;
+        }
+      });
+  }
 
   loginForm = new FormGroup({
     email: new FormControl("", [
@@ -28,21 +40,14 @@ export class LoginComponent {
     ]),
   });
 
-  ngOnInit() {}
-
   onSubmit() {
-    this.isSubmitted = true;
     const { email, password } = this.loginForm.value;
     if (this.loginForm.invalid) {
       return;
     }
+    this.isLoggedIn = true;
     this.isLoading = true;
-
     this.authService.loginUser(email as string, password as string);
-  }
-
-  reloadPage(): void {
-    window.location.reload();
   }
 
   get username() {
@@ -55,5 +60,9 @@ export class LoginComponent {
 
   get password() {
     return this.loginForm.get("password");
+  }
+
+  ngOnDestroy() {
+    this.authStatusSubject?.unsubscribe();
   }
 }

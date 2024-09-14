@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { Subscription } from "rxjs";
 import { AuthService } from "src/app/services/auth.service";
 
 @Component({
@@ -9,23 +10,37 @@ import { AuthService } from "src/app/services/auth.service";
 export class RegisterComponent {
   form: any = {};
   isSuccessful: boolean = false;
-  isRegistered: any;
   isLoading: boolean = false;
+  authStatusSubject: Subscription | undefined;
 
   constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.authStatusSubject = this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => {
+        this.isLoading = false;
+        console.log(authStatus);
+        if (authStatus) {
+          this.isSuccessful = true;
+        }
+        this.isSuccessful = false;
+      });
+  }
 
   onSubmit(): void {
     if (this.form.invalid) {
       return;
     }
     this.isLoading = true;
-    this.isRegistered = this.authService.registerUser(
+    this.authService.registerUser(
       this.form.username,
       this.form.email,
       this.form.password
     );
-    if (this.isRegistered) {
-      this.isSuccessful = true;
-    }
+  }
+
+  ngOnDestroy() {
+    this.authStatusSubject?.unsubscribe();
   }
 }

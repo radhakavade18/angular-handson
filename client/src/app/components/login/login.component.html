@@ -37,6 +37,12 @@
             </form>
         </mat-card-content>
     </mat-card>
+    <div class="alert alert-success" *ngIf="isLoggedIn">
+        Your login is successful!
+    </div>
+    <div class="alert alert-danger" *ngIf="!isLoggedIn">
+        Unauthorised user!
+    </div>
 
     <!-- <div class="card card-container">
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">

@@ -1,14 +1,15 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { AuthData } from "../model/authData.model";
 import { Router } from "@angular/router";
+import { environment } from "src/environments/environment";
 
 @Injectable({
   providedIn: "root",
 })
 export class AuthService {
-  private apiUrl = "http://localhost:3001/user";
+  private apiUrl = `${environment.apiUrl}/user`;
   private token: string = "";
   private authStatusListener = new Subject<boolean>();
   isAuthenticated: boolean = false;
@@ -40,12 +41,14 @@ export class AuthService {
       email: email,
       password: password,
     };
-    this.http
-      .post(`${this.apiUrl}/register`, authData)
-      .subscribe((response) => {
-        console.log(response);
-        this.router.navigate(["/login"]);
-      });
+    this.http.post(`${this.apiUrl}/register`, authData).subscribe(
+      () => {
+        this.router.navigate(["/"]);
+      },
+      (error) => {
+        this.authStatusListener.next(false);
+      }
+    );
   }
 
   loginUser(email: string, password: string) {
@@ -58,25 +61,30 @@ export class AuthService {
         `${this.apiUrl}/login`,
         authData
       )
-      .subscribe((response) => {
-        const token = response.token;
-        this.token = token;
-        if (token) {
-          const expiresInDuration = response.expiresIn;
-          // loged out user automatic once the expiration time is over
-          this.setAuthTimer(expiresInDuration);
-          this.isAuthenticated = true;
-          this.userId = response.userId;
-          this.authStatusListener.next(true);
-          // save the token and expiration time in localstorage
-          const now = new Date();
-          const expirationDate = new Date(
-            now.getTime() + expiresInDuration * 1000
-          );
-          this.saveAuthData(token, expirationDate, this.userId);
-          this.router.navigate(["/"]);
+      .subscribe(
+        (response) => {
+          const token = response.token;
+          this.token = token;
+          if (token) {
+            const expiresInDuration = response.expiresIn;
+            // loged out user automatic once the expiration time is over
+            this.setAuthTimer(expiresInDuration);
+            this.isAuthenticated = true;
+            this.userId = response.userId;
+            this.authStatusListener.next(true);
+            // save the token and expiration time in localstorage
+            const now = new Date();
+            const expirationDate = new Date(
+              now.getTime() + expiresInDuration * 1000
+            );
+            this.saveAuthData(token, expirationDate, this.userId);
+            this.router.navigate(["/"]);
+          }
+        },
+        (error) => {
+          this.authStatusListener.next(false);
         }
-      });
+      );
   }
 
   autoAuthUser() {

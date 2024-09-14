@@ -12,7 +12,7 @@ import { AuthService } from "../services/auth.service";
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService) {}
 
-  // on every rquest angular calls this method
+  // on every ONGOING request angular calls this method and pass the token with it
   intercept(
     request: HttpRequest<any>,
     next: HttpHandler

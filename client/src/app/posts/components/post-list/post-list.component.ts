@@ -59,9 +59,14 @@ export class PostListComponent {
 
   onDeletePost(postId: string) {
     this.isLoading = true;
-    this.postService.deletePost(postId).subscribe(() => {
-      this.postService.getPosts(this.postPerPage, this.currentPage);
-    });
+    this.postService.deletePost(postId).subscribe(
+      () => {
+        this.postService.getPosts(this.postPerPage, this.currentPage);
+      },
+      () => {
+        this.isLoading = false;
+      }
+    );
   }
 
   ngOnDestroy() {

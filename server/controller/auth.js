@@ -2,7 +2,8 @@ const bcrypt = require("bcrypt");
 const User = require("../model/User");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = 'your_jwt_secret_should_be_long';
+// get some globar configuration from nodemon.json file
+const JWT_SECRET = process.env.JWT_KEY;
 
 // Register a new user
 const register = (req, res, next) => {
@@ -17,7 +18,7 @@ const register = (req, res, next) => {
                 res.status(201).json({ message: "Registration successful!", result: result });
             })
             .catch(error => {
-                res.status(500).json({ error: error });
+                res.status(500).json({ message: "Invalid authentication credentials!" });
             });
     }).catch(error => {
         res.status(500).json({ error: error });
@@ -45,7 +46,6 @@ const login = async (req, res, next) => {
     }).catch(err => {
         return res.status(401).json({ message: "User not found" });
     });
-
 }
 
 module.exports = { register, login }

@@ -3,7 +3,7 @@ import { Post } from "../models/post.model";
 import { Subject, map } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
-import { AuthService } from "src/app/services/auth.service";
+import { environment } from "src/environments/environment";
 
 @Injectable({
   providedIn: "root",
@@ -11,7 +11,7 @@ import { AuthService } from "src/app/services/auth.service";
 export class PostsService {
   private posts: Post[] = [];
   private postsUpdate = new Subject<{ posts: Post[]; postCount: number }>();
-  private apiUrl = "http://localhost:3001/posts";
+  private apiUrl = `${environment.apiUrl}/posts`;
 
   constructor(private http: HttpClient, private router: Router) {}
 
