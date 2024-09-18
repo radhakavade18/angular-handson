@@ -24,3 +24,7 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(authRequest);
   }
 }
+
+/*
+  Interceptors are generally functions which you can run for each request, and have broad capabilities to affect the contents and overall flow of requests and responses. 
+*/
