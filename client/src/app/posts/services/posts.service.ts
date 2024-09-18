@@ -3,6 +3,7 @@ import { Post } from "../models/post.model";
 import { Subject, map } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
+import { environment } from "src/environments/environment";
 
 @Injectable({
   providedIn: "root",
@@ -10,7 +11,7 @@ import { Router } from "@angular/router";
 export class PostsService {
   private posts: Post[] = [];
   private postsUpdate = new Subject<{ posts: Post[]; postCount: number }>();
-  private apiUrl = "http://localhost:3001/posts";
+  private apiUrl = `${environment.apiUrl}/posts`;
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -31,6 +32,7 @@ export class PostsService {
                 content: post.content,
                 id: post._id,
                 imagePath: post.imagePath,
+                creator: post.creator,
               };
             }),
             maxPosts: postData.maxPosts,
@@ -73,6 +75,7 @@ export class PostsService {
       title: string;
       content: string;
       imagePath: string;
+      creator: string;
     }>(`${this.apiUrl}/${id}`);
   }
 
@@ -97,6 +100,7 @@ export class PostsService {
         title: title,
         content: content,
         imagePath: image,
+        creator: "",
       };
     }
 

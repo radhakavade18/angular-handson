@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { AuthService } from "src/app/services/auth.service";
 
 @Component({
@@ -10,14 +11,25 @@ import { AuthService } from "src/app/services/auth.service";
 })
 export class LoginComponent {
   isLoggedIn: boolean = false;
-  isSubmitted: boolean = false;
+  isLoading: boolean = false;
   errorMessage: string = "";
   roles: string[] = [];
+  authStatusSubject: Subscription | undefined;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.authStatusSubject = this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => {
+        this.isLoading = false;
+        if (!authStatus) {
+          this.isLoggedIn = false;
+        }
+      });
+  }
 
   loginForm = new FormGroup({
-    username: new FormControl("", Validators.required),
     email: new FormControl("", [
       Validators.required,
       Validators.pattern("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$"),
@@ -28,27 +40,14 @@ export class LoginComponent {
     ]),
   });
 
-  ngOnInit() {}
-
   onSubmit() {
-    this.isSubmitted = true;
-    this.router.navigate(["/home"]);
-
+    const { email, password } = this.loginForm.value;
     if (this.loginForm.invalid) {
       return;
     }
-    const { username, password } = this.loginForm.value;
-
-    this.authService.login(username as string, password as string).subscribe({
-      next: (response) => {
-        // this.authService.saveToken(response.token);
-        this.router.navigate(["/home"]);
-      },
-    });
-  }
-
-  reloadPage(): void {
-    window.location.reload();
+    this.isLoggedIn = true;
+    this.isLoading = true;
+    this.authService.loginUser(email as string, password as string);
   }
 
   get username() {
@@ -61,5 +60,9 @@ export class LoginComponent {
 
   get password() {
     return this.loginForm.get("password");
+  }
+
+  ngOnDestroy() {
+    this.authStatusSubject?.unsubscribe();
   }
 }

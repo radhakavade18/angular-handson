@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Route, Router } from "@angular/router";
+import { Subscription } from "rxjs";
 import { AuthService } from "src/app/services/auth.service";
 
 @Component({
@@ -10,26 +10,37 @@ import { AuthService } from "src/app/services/auth.service";
 export class RegisterComponent {
   form: any = {};
   isSuccessful: boolean = false;
-  isSubmitted: boolean = false;
-  errorMessage: string = "";
+  isLoading: boolean = false;
+  authStatusSubject: Subscription | undefined;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.authStatusSubject = this.authService
+      .getAuthStatusListener()
+      .subscribe((authStatus) => {
+        this.isLoading = false;
+        console.log(authStatus);
+        if (authStatus) {
+          this.isSuccessful = true;
+        }
+        this.isSuccessful = false;
+      });
+  }
 
   onSubmit(): void {
-    console.log("form", this.form);
-    this.router.navigate(["/login"]);
-    this.authService
-      .register(this.form.userName, this.form.password, this.form.email)
-      .subscribe(
-        (data) => {
-          console.log(data);
-          this.isSuccessful = true;
-          this.router.navigate(["/login"]);
-        },
-        (err) => {
-          this.errorMessage = err.error.message;
-          this.isSuccessful = false;
-        }
-      );
+    if (this.form.invalid) {
+      return;
+    }
+    this.isLoading = true;
+    this.authService.registerUser(
+      this.form.username,
+      this.form.email,
+      this.form.password
+    );
+  }
+
+  ngOnDestroy() {
+    this.authStatusSubject?.unsubscribe();
   }
 }

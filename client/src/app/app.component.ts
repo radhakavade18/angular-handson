@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
 import { TokenStorageService } from "./services/token-storage.service";
+import { AuthService } from "./services/auth.service";
+import { Subscription } from "rxjs";
 
 @Component({
   selector: "app-root",
@@ -8,29 +10,28 @@ import { TokenStorageService } from "./services/token-storage.service";
 })
 export class AppComponent {
   private roles: string[] = [];
-  isLoggedIn: boolean = false;
-  showAdminBoard: boolean = false;
-  showModeratorBoard: boolean = false;
+  userIsAuthenticated: boolean = false;
   username: string = "";
+  private authListenerSubs: Subscription | undefined;
 
-  constructor(private tokenStorageService: TokenStorageService) {}
+  constructor(private authService: AuthService) {}
 
-  onOnInit() {
-    this.isLoggedIn = !!this.tokenStorageService.getToken();
+  ngOnInit() {
+    this.authService.autoAuthUser();
 
-    if (this.isLoggedIn) {
-      const user = this.tokenStorageService.getUser();
-      this.roles = user.roles;
-
-      this.showAdminBoard = this.roles.includes("ROLE_ADMIN");
-      this.showModeratorBoard = this.roles.includes("ROLE_MODERATOR");
-
-      this.username = user.userName;
-    }
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authListenerSubs = this.authService
+      .getAuthStatusListener()
+      .subscribe((result: any) => {
+        this.userIsAuthenticated = result;
+      });
   }
 
   logOut(): void {
-    this.tokenStorageService.signOut();
-    window.location.reload();
+    this.authService.logOut();
+  }
+
+  ngOnDestroy() {
+    this.authListenerSubs?.unsubscribe();
   }
 }

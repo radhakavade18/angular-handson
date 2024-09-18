@@ -1,28 +1,24 @@
-const User = require("../model/User");
+const jwt = require("jsonwebtoken");
 
-const JWT_SECRET = 'your jwt secret';
+const JWT_SECRET = process.env.JWT_KEY;
 
 const authenticate = async (req, res, next) => {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-        return res.status(401).json({ message: 'Authentication required' });
-    }
-
+    // get the token from user in a header object
     try {
+        const token = req.headers.authorization?.split(" ")[1];
+        // we get back the decoded token 
         const decodedToken = jwt.verify(token, JWT_SECRET);
-
-        const user = await User.findById(decodedToken.userId);
-
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        req.user = user;
+        // add extra info to the the request which is running after the auth check
+        req.userData = { email: decodedToken.email, userId: decodedToken.userId }
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Invalid token' });
+        res.status(401).json({ message: 'Authentication Failed' });
     }
 }
 
-module.exports = { authenticate };
+module.exports = authenticate;
+
+/*
+    to protect routes by validating if user is Autheticated or not, we created a middleware which checks if,
+    request has token and it should be valid, then and then only we able to access that route to the user.
+*/
